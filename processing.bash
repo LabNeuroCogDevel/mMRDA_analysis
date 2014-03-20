@@ -4,10 +4,22 @@ rsync -azvhi meson:/disk/mace2/scan_data/homeless/BRAIN^dev-luna2/03.18.2014-14:
 rsync -azvhi skynet:/Volumes/Serena/SPECC/MR_Raw/031814_PETMRI/ ./0026/Reconstructed/
 rsync -azvhi meson:/disk/mace2/scan_data/DEV-LUNA/03.18.2014-12\:04\:49/B0026/  ./0026/Functionals/
 
-## freesurf
-#~/src/freesurfersearcher-general/surfOne.sh  -i 0026 -d /data/Luna1/Raw/mMRDA-dev/0026/axial_mprage_256x224.23/ -s  /data/Luna1/mMRDA-dev/FS_Subjects/
-subjectid=0026 niifile=/mMRDA-dev/mprage/0026/20140318_140528.nii.gz subjdir=/mMRDA-dev/FS_Subjects TYPE=mMRDA-dev /home/foranw/src/freesurfersearcher-genera
-l/queReconall.sh
+### freesurf -- WRONG? -- should run FS on functions !!
+##~/src/freesurfersearcher-general/surfOne.sh  -i 0026 -d /data/Luna1/Raw/mMRDA-dev/0026/axial_mprage_256x224.23/ -s  /data/Luna1/mMRDA-dev/FS_Subjects/
+#subjectid=0026 niifile=/mMRDA-dev/mprage/0026/20140318_140528.nii.gz subjdir=/mMRDA-dev/FS_Subjects TYPE=mMRDA-dev /home/foranw/src/freesurfersearcher-genera
+#l/queReconall.sh
+
+
+
+# put script ahead of anything in ni_tools (use local preprocessfunctianal)
+export PATH="/data/Luna1/mMRDA-dev/scripts/:$PATH"
+
+## functaion mprage
+mkdir -p /data/Luna1/mMRDA-dev/mprage/0026/{func,struct}
+cd /data/Luna1/mMRDA-dev/mprage/0026/func/
+preprocessMprage -r MNI_2mm -b "-R -f 0.5 -v" -d n -o 0026_20140318.nii.gz -p "/data/Luna1/Raw/mMRDA-dev/0026/Functionals/Sagittal_MPRAGE_ADNI_256x240.7/MR*"
+
+
 
 ## functional
 funcdir=/data/Luna1/mMRDA-dev/functional/0026
@@ -18,6 +30,7 @@ for f in *hdr; do
  fb=$(basename $f .hdr)
  3dcopy $f $funcdir/$fb.nii.gz
 done
+
 
 ## move funcs into their own directories
 cd $funcdir
@@ -31,6 +44,11 @@ paste <(echo C1 C2 C3 C4 R1 R2 R3 R4 BART|tr ' ' '\n') \
 
 mkdir Rest
 mv *resting*nii.gz Rest
+
+## preprocess functional:
+# N.B. no field map correction! (TODO)
+cd /data/Luna1/mMRDA-dev/functional/0026/C1
+preprocessFunctional  -4d ep2d_MB_BOLD_x4_MB_8278.nii.gz  -mprage_bet /data/Luna1/mMRDA-dev/mprage/0026/func/mprage_bet.nii -warpcoef /data/Luna1/mMRDA-dev/mprage/0026/func/mprage_warpcoef.nii -4d_slice_motion -custom_slice_times  /data/Luna1/mMRDA-dev/scripts/mMRDA_MBTimings.1D  -tr 1.5 
 
 ## checkout slice timing
 # from powerpoint:
