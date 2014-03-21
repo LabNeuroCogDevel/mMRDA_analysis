@@ -1,8 +1,7 @@
 # Processes MRI from mMR PET/MRI
 
 ## TODO
-* 0026 is 10672_20140318, rename
-* run 3dDeconvolve
+* script generating stimtimes
 
 ## Data and Paths
 
@@ -16,7 +15,7 @@
      - struct/VMAT  copied from: `/disk/mace2/scan_data/homeless/BRAIN^dev-luna2/` 
 
 ### Organization
-  * `scripts -- this directory
+  * `scripts` -- this directory
   * `behav` -- mat files for both slot task and BART
   * `FS_Subjects` -- FreeSurfer parcelations
   * `functional`  -- the arrange functional scans 
