@@ -11,7 +11,9 @@
 # stim files are generated from mat output and genStimTimes.m
 # curerntly saved in ../behav/0026/SlotStims/
 scriptdir=$(cd $(dirname $0);pwd)
-stimdir=$scriptdir/../behav/10672_20140318/SlotStims/
+
+# set stim dir if we haven't
+[ -z "$stimdir" ] && stimdir=$scriptdir/../behav/10672_20140318/SlotStims/
 
 
 # check functional input
@@ -26,8 +28,8 @@ for s in NOWIN WIN;do
  printf -v "stim${s}" $stimfile
 done
 
-stimstart=$scriptdir/../behav/10672_20140318/SlotStims/${blk}_duration_start.1D
-stimspin=$scriptdir/../behav/10672_20140318/SlotStims/${blk}_duration_spin.1D
+stimstart=$stimdir/${blk}_duration_start.1D
+ stimspin=$stimdir/${blk}_duration_spin.1D
 
 #nTR=$(3dinfo -nv $func)
 #TR=1.5
@@ -36,7 +38,7 @@ echo "$func($nTR) $blk $stimNOWIN"
 
 3dDeconvolve                                           \
       -input $func \
-      -polort 9     -tout                              \
+      -polort 3     -tout                              \
       -num_stimts 4                                    \
       -stim_times_AM1 1 $stimstart 'dmBLOCK(1)' \
       -stim_label 1 slotstart                               \
