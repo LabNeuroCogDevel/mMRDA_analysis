@@ -1112,7 +1112,7 @@ if [ $sliceMotion4D -eq 1 ]; then
 	slcorder="interleaved"
     fi
 
-    rel "sliceMotion4d --inputs \"${infile}\" --tr $tr --slice_times $slcorder --prefix ${slcmotprefix}"
+    rel "python2 $(which sliceMotion4d) --inputs \"${infile}\" --tr $tr --slice_times $slcorder --prefix ${slcmotprefix}"
     rel "date > .motion_correction_complete"
     rel "date > .slice_timing_complete"
 
