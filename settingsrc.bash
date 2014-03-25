@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+#
+# where are the folders
+# how are subject ids suppose to look (lunaid_date)
+# what should be in the path
+
+[ -z "$subjid" ] && echo "need subject id!" && exit 1;
+
+if [[ "$subjid" =~ [0-9][0-9][0-9][0-9][0-9]_[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9] ]]; then
+  echo "$subjid should be lunaid_date"
+  exit 1
+fi
+
+# make sure the files in the script directory take presidence over anything named the same in the path
+# scriptdir should usually be defined before sourcing this script
+[ -z "$scriptdir" ] && scriptdir=$(cd $(dirname $0);pwd)
+export PATH="$scriptdir:$PATH"
+
+subjectroot="/Volumes/Serena/mMRDA-dev/subjects"
+
+behavdir="$subjectroot/$subjid/behavior"
+mpragedir="$subjectroot/$subjid/mprage/func/"
+epidir="$subjectroot/$subjid/func"
