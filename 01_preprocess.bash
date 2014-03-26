@@ -22,9 +22,9 @@ warpcoef=$mpragedir/mprage_warpcoef.nii.gz
 [ ! -r $mprage_bet ] && echo "no $mprage_bet, process mprage first" && exit 1
 [ ! -r $epi ] && echo "no $epi, run copy script" && exit 1
 
-cd $epidir
+cd $(dirname $epi)
 preprocessFunctional \
-	-4d $epi  -tr 1.5     \
+	-4d $(basename $epi)  -tr 1.5     \
 	-mprage_bet $mprage_bet -warpcoef $warpcoef \
         -slice_acquisition interleaved  \
 	-4d_slice_motion -custom_slice_times $slices 
