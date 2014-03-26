@@ -13,23 +13,25 @@ matpath=$2
 scriptdir=$(cd $(dirname $0);pwd)
 . $scriptdir/settingsrc.bash
 
+# bail if we've already done this
+[ -z "$OVERWRITE" -a -d $behavdir/stimtimes ] && echo "you appear to already have stimfiles! if you want to redo:
+OVERWRITE=1 $0 $@" && exit 0
 
 [ ! -d "$behavdir" ] && mkdir -p $behavdir
 
+
 # get file
+set -xe
 rsync -azvhi $matpath $behavdir/
 
-matfile=$behavdir/$(basename $matpath)
-[ ! -r $matfile ] && echo "Cannot find/read '$matfile'" && exit 1
-
+matfile="$(find $behavdir/$(basename $matpath) -type f| sed 1q)"
+[ -z "$matfile" -o ! -r "$matfile" ] && echo "Cannot find/read '$matfile'" && exit 1
 ## run matlab to generate stim files
+echo $matfile
 cd $scriptdir
-matlab -nodesktop -r "
-try,
-  genStimTimes('$matfile');
-catch,
-  fprintf('***********\ncould not write stim files!\n');
-end;
-quit;
-"
+matlab -nodisplay -r "try, genStimTimes('$matfile'), catch, fprintf('***********\ncould not write stim files!\n'), end; quit; "
+
+[ ! -d stimtimes/$subjid ] && echo "failed to create stimfiles" && exit 1
+
+mv stimtimes/$subjid $behavdir/stimtimes
 

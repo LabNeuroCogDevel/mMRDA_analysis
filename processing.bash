@@ -45,6 +45,13 @@ paste <(echo C1 C2 C3 C4 R1 R2 R3 R4 BART|tr ' ' '\n') \
 mkdir Rest
 mv *resting*nii.gz Rest
 
+## field maps
+dcm2nii /data/Luna1/mMRDA-dev/raw/10672_20140318/Functionals/gre_field_mapping_2_96x96.24/*
+dcm2nii /data/Luna1/mMRDA-dev/raw/10672_20140318/Functionals/gre_field_mapping_2_96x96.25/*
+mkdir /data/Luna1/mMRDA-dev/functional/10672_20140318/grefieldmap
+mv /data/Luna1/mMRDA-dev/raw/10672_20140318/Functionals/gre_field_mapping_2_96x96.2[45]/*nii.gz $_ 
+
+
 #######
 ## preprocess functional:
 # N.B. no field map correction! (TODO)
@@ -59,14 +66,18 @@ deconvolve.bash nfswktm_ep2d_MB_BOLD_x4_MB_8278.nii.gz 1
 ## REWARD BLOCK
 cd /data/Luna1/mMRDA-dev/functional/10672_20140318/R1
 preprocessFunctional \
-    -4d ep2d_MB_BOLD_x4_MB_8290.nii.gz \
+   -4d ep2d_MB_BOLD_x4_MB_8290.nii.gz \
    -tr 1.5     \
    -mprage_bet /data/Luna1/mMRDA-dev/mprage/10672_20140318/func/mprage_bet.nii  \
    -warpcoef /data/Luna1/mMRDA-dev/mprage/10672_20140318/func/mprage_warpcoef.nii \
    -4d_slice_motion -custom_slice_times  /data/Luna1/mMRDA-dev/scripts/mMRDA_MBTimings.1D  \
    -slice_acquisition interleaved 
 
-deconvolve.bash nfswktm_ep2d_MB_BOLD_x4_MB_8290.nii.gz 5
+   #-fm_phase \
+   #-fm_magnitude \
+   #-fm_cfg /data/Luna1/mMRDA-dev/scripts/mMRgrefield.cfg \
+
+deconvolve.bash nfswktm_ep2d_MB_BOLD_x4_MB_8290.nii.gz 5 mcplots.par
 
 #####################
 ## checkout slice timing

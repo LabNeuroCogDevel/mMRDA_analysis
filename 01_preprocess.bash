@@ -28,3 +28,4 @@ preprocessFunctional \
 	-mprage_bet $mprage_bet -warpcoef $warpcoef \
         -slice_acquisition interleaved  \
 	-4d_slice_motion -custom_slice_times $slices 
+        #-no_st -motion_ sinc

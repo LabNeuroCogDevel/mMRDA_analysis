@@ -4,7 +4,8 @@ function genStimTimes(matfile)
 %   1) break up timeing vector into blocks
 %   2) save each stim file in a subject_run directory
 a=load(matfile);
-trialblklist=a.subject.experiment(:,a.subject.expercol2idx('Block'));
+%trialblklist=a.subject.experiment(:,a.subject.expercol2idx('Block'));
+trialblklist=a.subject.experiment(:,1);
 
 RT=[a.subject.stimtime.response] - [a.subject.stimtime.start];
 

@@ -7,13 +7,32 @@
 #
 #  ./copyTonii.bash /Volumes/Serena/mMRDA-dev/MR_Raw/031814_PETMRI /Volumes/Serena/mMRDA-dev/subjects/10672_20140318
 
+set -e
+
 
 hdrdir=$1
-[ -z "$hdrdir" -o ! -d "$hdrdir" ] && echo "give me a hdrdir ($hdrdir is no good)" && exit 1;
+[ -z "$hdrdir" ] && echo "give me a path to the hdr/img files as first argument" && exit 1;
+# later used for rsync if needed
+tmpdir=
 
 savedir=$2
 [ -z "$savedir" ] && echo "second argument should be a folder to save to" && exit 1;
 [ ! -d "$(dirname $savedir)" ] && echo "$(dirname $savedir) does not exist" && exit 1;
+
+
+[ -z "$OVERWRITE" -a  $(ls $savedir/func/*/epi.nii.gz|wc -l) -ge 4 ] && echo "probably have what you want, skipping -- otherwise use
+OVERWRITE=1 $0 $@" && exit 0
+
+
+# remote location
+if [[ $hdrdir =~ :[~/] ]]; then
+ tmpdir=$savedir/hdrimg_Tae/
+ rsync -avhi $hdrdir/ $tmpdir || exit 1
+ hdrdir=$tmpdir
+fi
+
+[ ! -d "$hdrdir" ]  && echo "$hdrdir doesn't exist" && exit 1
+
 
 # find all the epi images
 pattern='*BOLD_X4_MB*hdr'
@@ -33,7 +52,11 @@ esac
 export AFNI_ANALYZE_VIEW=orig AFNI_ANALYZE_ORIGINATOR=YES
 # create mesh based on files
 paste <(echo "$seq"|tr ' ' '\n') <(echo "$files")|while read block file; do
+ [ -r $savedir/func/$block/epi.nii.gz ] && continue
  mkdir -p $savedir/func/$block
  3dcopy $file $savedir/func/$block/epi.nii.gz
  echo "$file -> $block $(date +%F)" > $savedir/func/$block/log
 done
+
+# cleanup
+# [ ! -z "$tmpdir" ] && rm -r $tmpdir

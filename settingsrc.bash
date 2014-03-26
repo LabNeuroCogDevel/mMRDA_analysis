@@ -11,8 +11,13 @@ if [[ "$subjid" =~ [0-9][0-9][0-9][0-9][0-9]_[0-9][0-9][0-9][0-9][0-9][0-9][0-9]
   exit 1
 fi
 
+case $(hostname -s) in
+ wallace)
+   subjectroot="/data/Luna1/mMRDA-dev/subjects";;
+ skynet)
+   subjectroot="/Volumes/Serena/mMRDA-dev/subjects";;
+esac
 
-subjectroot="/Volumes/Serena/mMRDA-dev/subjects"
 
 behavdir="$subjectroot/$subjid/behavior"
 mpragedir="$subjectroot/$subjid/mprage/func/"

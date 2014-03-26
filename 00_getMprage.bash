@@ -19,6 +19,8 @@ mesonpath=$2
 . $scriptdir/settingsrc.bash
 
 [ ! -d $mpragedir ] && mkdir -p $mpragedir
+[ -z "$OVERWRITE" -a -r $mpragedir/mprage.nii.gz ] && echo "you already have an mprage! if you want to overwrite:
+OVERWRITE=1 $0 $@" && exit 0
 
 ## GET
 echo '$MRluna!899'
