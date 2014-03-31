@@ -6,6 +6,7 @@
 # e.g.
 #
 #  ./copyTonii.bash /Volumes/Serena/mMRDA-dev/MR_Raw/031814_PETMRI /Volumes/Serena/mMRDA-dev/subjects/10672_20140318
+#  ./00_copy2nii.bash skynet:/Volumes/Serena/mMRDA-dev/MR_Raw/031814_PETMRI /data/Luna1/mMRDA-dev/subjects/1067_20140318
 
 set -e
 
@@ -27,6 +28,7 @@ OVERWRITE=1 $0 $@" && exit 0
 # remote location
 if [[ $hdrdir =~ :[~/] ]]; then
  tmpdir=$savedir/hdrimg_Tae/
+ mkdir -p $tmpdir
  rsync -avhi $hdrdir/ $tmpdir || exit 1
  hdrdir=$tmpdir
 fi
@@ -57,6 +59,7 @@ paste <(echo "$seq"|tr ' ' '\n') <(echo "$files")|while read block file; do
  3dcopy $file $savedir/func/$block/epi.nii.gz
  echo "$file -> $block $(date +%F)" > $savedir/func/$block/log
 done
+echo "$0 $@ #[$(hostname -s) $(date +"%F %H:%M")" >> $savedir/make.log
 
 # cleanup
 # [ ! -z "$tmpdir" ] && rm -r $tmpdir

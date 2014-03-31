@@ -30,3 +30,8 @@ export PATH="$scriptdir:$PATH"
 
 # make sure we make .nii.gz with fsl
 export FSLOUTPUTTYPE=NIFTI_GZ
+
+
+function writelog {
+  echo "$@ #$(whoami) @ $(hostname -s) ⌚ $(date +"%F %H:%M") " >> $subjectroot/$subjid/make.log
+}

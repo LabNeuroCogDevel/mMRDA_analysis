@@ -35,3 +35,6 @@ matlab -nodisplay -r "try, genStimTimes('$matfile'), catch, fprintf('***********
 
 mv stimtimes/$subjid $behavdir/stimtimes
 
+#echo "$0 $@ #[$(hostname -s)] $(date +"%F %H:%M") " >> $subjectroot/info.log
+writelog "$0 $@"
+

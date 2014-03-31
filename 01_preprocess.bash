@@ -5,6 +5,7 @@
 
 subjid=$1 
 block=$2
+quick=$3
 
 [ -z "$subjid" -o -z "$block" ] && echo "USAGE: $0 lunaid_date B#" && exit 1;
 
@@ -22,10 +23,17 @@ warpcoef=$mpragedir/mprage_warpcoef.nii.gz
 [ ! -r $mprage_bet ] && echo "no $mprage_bet, process mprage first" && exit 1
 [ ! -r $epi ] && echo "no $epi, run copy script" && exit 1
 
+
+motionandslice="-slice_acquisition interleaved  -4d_slice_motion -custom_slice_times $slices"
+
+# if 3rd option is quick, dont do slice and do fast motion correction
+[ "$quick x" == "quick x" ] && motionandslice="-no_st -motion_sinc n"
+
 cd $(dirname $epi)
 preprocessFunctional \
 	-4d $(basename $epi)  -tr 1.5     \
 	-mprage_bet $mprage_bet -warpcoef $warpcoef \
-        -slice_acquisition interleaved  \
-	-4d_slice_motion -custom_slice_times $slices 
-        #-no_st -motion_ sinc
+        $motionandslice
+
+
+writelog "$0 $@"

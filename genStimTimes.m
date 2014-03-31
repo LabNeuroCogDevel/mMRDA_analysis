@@ -16,10 +16,20 @@ folder=fullfile('stimtimes', ...
 if(~exist(folder,'dir')), mkdir(folder), end
 
 % combine all results into one fields
-allresults ={a.subject.stimtime.NOWIN;  ...
-             a.subject.stimtime.NOWIN;   ...
-             a.subject.stimtime.XXX;     ...
-             a.subject.stimtime.HASH };
+n_missing=setdiff( {'WIN','NOWIN','XXX','HASH'}, fieldnames(a.subject.stimtime) );
+
+% if we have catch trials
+if isempty(n_missing)
+   allresults={a.subject.stimtime.WIN;  ...
+               a.subject.stimtime.NOWIN; ...
+               a.subject.stimtime.XXX;     ...
+               a.subject.stimtime.HASH };
+
+else
+   allresults={a.subject.stimtime.WIN;  ...
+               a.subject.stimtime.NOWIN; };
+end
+
 allresults(cellfun(@isempty,allresults))={0};
 allresults=sum(cell2mat(allresults),1);
 for i=1:length(allresults)
@@ -33,10 +43,23 @@ end
 % foreach block
 for blknum=unique(trialblklist)'
     
+     % stims for just this block
      blkidxs=trialblklist==blknum;
+     try
+       blkstims=a.subject.stimtime(blkidxs);
+     catch
+       error('experiment did not finish!!?')
+     end
+
+
      % foreach stimtime 
-     for stim=fieldnames(a.subject.stimtime)'
-         stimtimes=[a.subject.stimtime(blkidxs).(stim{1})];
+     for stim=fieldnames(blkstims)'
+         stimtimes=[blkstims.(stim{1})];
+
+         % weird matlab version issue? 2013a vs b
+         if strmatch(class(stimtimes),'cell')
+           stimtimes=[stimtimes{:}];
+         end
          
          if(isempty(stimtimes))
              continue;
