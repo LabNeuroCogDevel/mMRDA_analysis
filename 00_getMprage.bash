@@ -17,7 +17,7 @@ subjid=$1
 remotepath=$2
 [ -z "$remotepath" ] && echo "second argument should be path to RAGE on meson!" && exit 1;
 
-# get mpragedir
+# get mpragedir and MNIref (MNI_2mm)
 . $scriptdir/settingsrc.bash
 
 [ ! -d $mpragedir ] && mkdir -p $mpragedir
@@ -30,15 +30,14 @@ echo '$MRluna!899'
 rsync -azvhi $remotepath/ $mpragedir/ 
 
 ## PROCESS
-export FSLOUTPUTTYPE="NIFTI_GZ"
 cd $mpragedir
-preprocessMprage -r MNI_2mm -b "-R -f 0.5 -v" -d n -o mprage.nii.gz 
+preprocessMprage -r $MNIref -b "-R -f 0.5 -v" -d n -o mprage.nii.gz 
 #-p "/data/Luna1/Raw/mMRDA-dev/10672_20140318/Functionals/Sagittal_MPRAGE_ADNI_256x240.7/MR*"
 
 # add notes to mprage
 for file in mprage.nii.gz mprage_warpcoef.nii.gz mprage_bet.nii.gz; do
   3dNotes -h "rsync -azvhi $remotepath/ $mpragedir/" $file
-  3dNotes -h 'preprocessMprage -r MNI_2mm -b "-R -f 0.5 -v" -d n -o mprage.nii.gz' $file
+  3dNotes -h "preprocessMprage -r $MNIref -b '-R -f 0.5 -v' -d n -o mprage.nii.gz" $file
 done
 
 writelog "$0 $@"

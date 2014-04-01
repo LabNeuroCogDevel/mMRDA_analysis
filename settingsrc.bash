@@ -19,6 +19,7 @@ case $(hostname -s) in
 esac
 
 
+MNIref="MNI_2mm"
 behavdir="$subjectroot/$subjid/behavior"
 mpragedir="$subjectroot/$subjid/mprage/func/"
 epidir="$subjectroot/$subjid/func"

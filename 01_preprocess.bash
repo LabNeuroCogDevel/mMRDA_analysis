@@ -31,6 +31,7 @@ motionandslice="-slice_acquisition interleaved  -4d_slice_motion -custom_slice_t
 
 cd $(dirname $epi)
 preprocessFunctional \
+        -ref $MNIref \
 	-4d $(basename $epi)  -tr 1.5     \
 	-mprage_bet $mprage_bet -warpcoef $warpcoef \
         $motionandslice
