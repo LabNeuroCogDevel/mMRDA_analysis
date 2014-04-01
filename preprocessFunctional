@@ -1113,9 +1113,11 @@ if [ $sliceMotion4D -eq 1 ]; then
 	slcorder="interleaved"
     fi
 
-    rel "python2 $(which sliceMotion4d) --inputs \"${infile}\" --tr $tr --slice_times $slcorder --prefix ${slcmotprefix}"
-    rel "date > .motion_correction_complete"
-    rel "date > .slice_timing_complete"
+    if [ ! -r .motion_correction_complete -o ! -r .slice_timing_complete ]; then
+       rel "python2 $(which sliceMotion4d) --inputs \"${infile}\" --tr $tr --slice_times $slcorder --prefix ${slcmotprefix}"
+       rel "date > .motion_correction_complete"
+       rel "date > .slice_timing_complete"
+    fi
 
 elif [[ $no_st -eq 1 ]]; then
     #just motion and FM unwarp
