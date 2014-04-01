@@ -30,8 +30,9 @@ motionandslice="-slice_acquisition interleaved  -4d_slice_motion -custom_slice_t
 [ "$quick x" == "quick x" ] && motionandslice="-no_st -motion_sinc n"
 
 cd $(dirname $epi)
+set -xe
 preprocessFunctional \
-        -ref $MNIref \
+        -template_brain $MNIref \
 	-4d $(basename $epi)  -tr 1.5     \
 	-mprage_bet $mprage_bet -warpcoef $warpcoef \
         $motionandslice
