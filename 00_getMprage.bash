@@ -17,22 +17,25 @@ subjid=$1
 remotepath=$2
 [ -z "$remotepath" ] && echo "second argument should be path to RAGE on meson!" && exit 1;
 
-# get mpragedir and MNIref (MNI_2mm)
+# get mpragedir and T1MNIref (MNI_2mm)
 . $scriptdir/settingsrc.bash
 
 [ ! -d $mpragedir ] && mkdir -p $mpragedir
 [ -z "$OVERWRITE" -a -r $mpragedir/mprage.nii.gz ] && echo "you already have an mprage! if you want to overwrite:
 OVERWRITE=1 $0 $@" && exit 0
 
+# actual command all of this boils down to
+cmd="preprocessMprage -r $T1MNIref -b \"-R -f 0.5 -v\" -d n -o mprage.nii.gz "
+#-p "/data/Luna1/Raw/mMRDA-dev/10672_20140318/Functionals/Sagittal_MPRAGE_ADNI_256x240.7/MR*"
+
+echo '$MRluna!899'
 set -xe
 ## GET
-echo '$MRluna!899'
 rsync -azvhi $remotepath/ $mpragedir/ 
 
 ## PROCESS
 cd $mpragedir
-preprocessMprage -r $MNIref -b "-R -f 0.5 -v" -d n -o mprage.nii.gz 
-#-p "/data/Luna1/Raw/mMRDA-dev/10672_20140318/Functionals/Sagittal_MPRAGE_ADNI_256x240.7/MR*"
+eval $cmd
 
 # add notes to mprage
 for file in mprage.nii.gz mprage_warpcoef.nii.gz mprage_bet.nii.gz; do
@@ -40,4 +43,4 @@ for file in mprage.nii.gz mprage_warpcoef.nii.gz mprage_bet.nii.gz; do
   3dNotes -h "preprocessMprage -r $MNIref -b '-R -f 0.5 -v' -d n -o mprage.nii.gz" $file
 done
 
-writelog "$0 $@"
+writelog "## $0 $@\n$cmd"

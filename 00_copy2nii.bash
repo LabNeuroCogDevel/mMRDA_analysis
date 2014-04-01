@@ -54,9 +54,12 @@ esac
 export AFNI_ANALYZE_VIEW=orig AFNI_ANALYZE_ORIGINATOR=YES
 # create mesh based on files
 paste <(echo "$seq"|tr ' ' '\n') <(echo "$files")|while read block file; do
- [ -r $savedir/func/$block/epi.nii.gz ] && continue
- mkdir -p $savedir/func/$block
- 3dcopy $file $savedir/func/$block/epi.nii.gz
+ filename=$savedir/func/$block/epi.nii.gz 
+ thissavedir=$(dirname $filename)
+ [ -r $filename ] && continue # already did this
+ mkdir -p $thissavedir # make dir if not already there
+ 3dcopy $file $filename
+ 3drefit -TR 1.5 $filename
  echo "$file -> $block $(date +%F)" > $savedir/func/$block/log
 done
 echo "$0 $@ #[$(hostname -s) $(date +"%F %H:%M")" >> $savedir/make.log

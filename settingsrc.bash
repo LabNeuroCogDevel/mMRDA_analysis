@@ -19,7 +19,8 @@ case $(hostname -s) in
 esac
 
 
-MNIref="MNI_2mm"
+T1MNIref="MNI_2mm"
+T2MNIref="MNI_3mm"
 behavdir="$subjectroot/$subjid/behavior"
 mpragedir="$subjectroot/$subjid/mprage/func/"
 epidir="$subjectroot/$subjid/func"
@@ -34,5 +35,11 @@ export FSLOUTPUTTYPE=NIFTI_GZ
 
 
 function writelog {
-  echo "$@ #$(whoami) @ $(hostname -s) ⌚ $(date +"%F %H:%M") " >> $subjectroot/$subjid/make.log
+  echo -e "### $(whoami) @ $(hostname -s) ⌚ $(date +"%F %H:%M") ###\n$@" >> $subjectroot/$subjid/make.log
+}
+
+function lognifti {
+  nii=$1; shift;
+  [ -z "$nii" -o ! -r "$nii" ] && echo "cannot log $nii, DNE" && return
+  3dNotes $nii -h "[$(whoami)@$(hostname -s) $(date +"%F %H:%M")] $@" 
 }

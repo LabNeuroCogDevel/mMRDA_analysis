@@ -30,12 +30,23 @@ motionandslice="-slice_acquisition interleaved  -4d_slice_motion -custom_slice_t
 [ "$quick x" == "quick x" ] && motionandslice="-no_st -motion_sinc n"
 
 cd $(dirname $epi)
+struct=$(basename $mprage_bet)
+warp=$(basename $warpcoef)
+
 set -xe
-preprocessFunctional \
-        -template_brain $MNIref \
-	-4d $(basename $epi)  -tr 1.5     \
-	-mprage_bet $mprage_bet -warpcoef $warpcoef \
-        $motionandslice
+# TODO: make symbolic links relative to cwd
+[ -L $struct   ] || ln -s $mprage_bet $struct
+[ -L $warp ]     || ln -s $warpcoef $warp
 
+cmd="preprocessFunctional 
+        -template_brain $T2MNIref 
+	-4d $(basename $epi)  -tr 1.5     
+	-mprage_bet $struct -warpcoef $warp 
+        $motionandslice"
 
-writelog "$0 $@"
+eval $cmd
+#for file in n*.nii.gz; do
+#  lognifti $file $cmd
+#done
+
+writelog "##$0 $@\n$cmd"
