@@ -5,19 +5,31 @@
 #
 # e.g.
 #
+#  ./00_copy2nii.bash 1067_20140318 skynet:/Volumes/Serena/mMRDA-dev/MR_Raw/031814_PETMRI 
 #  ./copyTonii.bash /Volumes/Serena/mMRDA-dev/MR_Raw/031814_PETMRI /Volumes/Serena/mMRDA-dev/subjects/10672_20140318
 #  ./00_copy2nii.bash skynet:/Volumes/Serena/mMRDA-dev/MR_Raw/031814_PETMRI /data/Luna1/mMRDA-dev/subjects/1067_20140318
 
 set -e
 
+# what do the scan hdrs for look like (from Tae)
+pattern='*BOLD_X[48]_MB*hdr'
 
-hdrdir=$1
-[ -z "$hdrdir" ] && echo "give me a path to the hdr/img files as first argument" && exit 1;
+subjid=$1
+subjid=$1
+[ -z "$subjid" ] && echo "first argument should be subjectid!" && exit 1;
+
+hdrdir=$2
+[ -z "$hdrdir" ] && echo "give me a path to the hdr/img files as first argument, maybe
+  skynet:/Volumes/Serena/mMRDA-dev/MR_Raw/$subjid" && exit 1;
+
 # later used for rsync if needed
 tmpdir=
 
-savedir=$2
-[ -z "$savedir" ] && echo "second argument should be a folder to save to" && exit 1;
+# get subjectroot 
+scriptdir=$(cd $(dirname $0);pwd)
+. $scriptdir/settingsrc.bash
+
+savedir=$subjectroot/$subjid/
 [ ! -d "$(dirname $savedir)" ] && echo "$(dirname $savedir) does not exist" && exit 1;
 
 
@@ -36,8 +48,7 @@ fi
 [ ! -d "$hdrdir" ]  && echo "$hdrdir doesn't exist" && exit 1
 
 
-# find all the epi images
-pattern='*BOLD_X4_MB*hdr'
+# find all the epi images using the folder pattern
 files="$(find $hdrdir -maxdepth 1 -iname $pattern | sort )"
 
 nfiles=$(echo "$files"|wc -l|tr -d ' ' )
