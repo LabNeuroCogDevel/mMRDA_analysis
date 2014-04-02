@@ -25,7 +25,7 @@ remotepath=$2
 OVERWRITE=1 $0 $@" && exit 0
 
 # actual command all of this boils down to
-cmd="preprocessMprage -r $T1MNIref -b \"-R -f 0.5 -v\" -d n -o mprage.nii.gz "
+cmd="preprocessMprage -r $T1MNIref -b \"-R -f 0.5 -v\" -d n -o mprage_nonlinear_warp_$T1MNIref.nii.gz "
 #-p "/data/Luna1/Raw/mMRDA-dev/10672_20140318/Functionals/Sagittal_MPRAGE_ADNI_256x240.7/MR*"
 
 echo '$MRluna!899'
@@ -39,8 +39,8 @@ eval $cmd
 
 # add notes to mprage
 for file in mprage.nii.gz mprage_warpcoef.nii.gz mprage_bet.nii.gz; do
-  3dNotes -h "rsync -azvhi $remotepath/ $mpragedir/" $file
-  3dNotes -h "preprocessMprage -r $MNIref -b '-R -f 0.5 -v' -d n -o mprage.nii.gz" $file
+  lognifti "rsync -azvhi $remotepath/ $mpragedir/" $file
+  lognifti "$cmd" $file
 done
 
-writelog "## $0 $@\n$cmd"
+writelog " ## $0 $@\n$cmd"

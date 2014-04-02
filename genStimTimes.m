@@ -15,6 +15,10 @@ folder=fullfile('stimtimes', ...
        [ num2str(a.subject.subj_id) '_' num2str(a.subject.run_date) ] );
 if(~exist(folder,'dir')), mkdir(folder), end
 
+
+
+%% combine all results
+
 % combine all results into one fields
 n_missing=setdiff( {'WIN','NOWIN','XXX','HASH'}, fieldnames(a.subject.stimtime) );
 
@@ -39,6 +43,33 @@ for i=1:length(allresults)
       a.subject.stimtime(i).allresults=allresults(i);
     end
 end
+
+%%%%% duration
+
+% if we have a catch field in the stimstruct use that to id catch trials
+% otherwise use the experiment design
+iscatch = a.subject.experiment(:,4)==0;
+if ~isempty([strfind(fieldnames(a.subject.stimtime),'Catch')])
+  iscatch = ~cellfun(@isempty, {a.subject.stimtime.Catch })';
+else 
+  error('mat format is old! edit source if you really want to overwrite the stims that should alraedy be there!')
+  %iscatch = a.subject.experiment(:,3)==0;
+end
+
+%% TODO: work with catch trial on last of block
+spindur=zeros(1,size(a.subject.experiment,1));
+endofblocks=[ find(diff(a.subject.experiment(:,1))>0); length(iscatch)];
+if(any(iscatch( endofblocks )))
+  error('catch trial on last of a block! how do I know duration')
+else
+  spindur(~iscatch) = [a.subject.stimtime(~iscatch).allresults] - [a.subject.stimtime(~iscatch).spin] ;
+  spindur(iscatch) = [a.subject.stimtime(find(iscatch)+1).start] - [a.subject.stimtime(iscatch).spin] ;
+end
+%for i=1:length(spindur)
+% a.subject.stimtime(i).spin_duration = spindur(i);
+%end
+
+%%%%%% output file
 
 % foreach block
 for blknum=unique(trialblklist)'
@@ -83,6 +114,18 @@ for blknum=unique(trialblklist)'
          fclose(fid);
          
      end
+
+     % write married spin:duration file
+     filename=[ num2str(blknum,'%02d') '_spin:duration.1D'];
+     fid=fopen(fullfile(folder,filename),'w');
+     fprintf(fid,'%.03f:%.03f ',[[blkstims.spin];spindur(blkidxs)]);
+     fclose(fid);
+
+     % maried start:duration (where duration is from start to response ie. RT)
+     filename=[ num2str(blknum,'%02d') '_start:duration.1D'];
+     fid=fopen(fullfile(folder,filename),'w');
+     fprintf(fid,'%.03f:%.03f ',[ [blkstims.start]; [blkstims.response] - [blkstims.start] ]);
+     fclose(fid);
      
 end
 

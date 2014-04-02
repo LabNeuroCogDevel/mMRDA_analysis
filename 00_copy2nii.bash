@@ -62,7 +62,7 @@ paste <(echo "$seq"|tr ' ' '\n') <(echo "$files")|while read block file; do
  3drefit -TR 1.5 $filename
  echo "$file -> $block $(date +%F)" > $savedir/func/$block/log
 done
-echo "$0 $@ #[$(hostname -s) $(date +"%F %H:%M")" >> $savedir/make.log
+echo -e "### $(whoami) @ $(hostname -s) $(date +"%F %H:%M") ###\n$0 $@ " >> $savedir/make.log
 
 # cleanup
 # [ ! -z "$tmpdir" ] && rm -r $tmpdir

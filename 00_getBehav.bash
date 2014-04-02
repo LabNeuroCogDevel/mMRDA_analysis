@@ -33,6 +33,7 @@ matlab -nodisplay -r "try, genStimTimes('$matfile'), catch, fprintf('***********
 
 [ ! -d stimtimes/$subjid ] && echo "failed to create stimfiles" && exit 1
 
+[ -d $behavdir/stimtimes ] && mv $behavdir/stimtimes $behavdir/$(date +%F:%H:%M)_stimtimes_old
 mv stimtimes/$subjid $behavdir/stimtimes
 
 #echo "$0 $@ #[$(hostname -s)] $(date +"%F %H:%M") " >> $subjectroot/info.log
