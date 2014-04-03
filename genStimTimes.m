@@ -48,11 +48,12 @@ end
 
 % if we have a catch field in the stimstruct use that to id catch trials
 % otherwise use the experiment design
-iscatch = a.subject.experiment(:,4)==0;
-if ~isempty([strfind(fieldnames(a.subject.stimtime),'Catch')])
+iscatch = a.subject.experiment(:,3)==0;
+if any(~cellfun(@isempty, strfind(fieldnames(a.subject.stimtime),'Catch') ))
   iscatch = ~cellfun(@isempty, {a.subject.stimtime.Catch })';
 else 
-  error('mat format is old! edit source if you really want to overwrite the stims that should alraedy be there!')
+  %error('mat format is old! edit source if you really want to overwrite the stims that should alraedy be there!')
+  warning('mat format is old!')
   %iscatch = a.subject.experiment(:,3)==0;
 end
 
