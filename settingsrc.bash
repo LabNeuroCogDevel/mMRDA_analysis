@@ -25,6 +25,8 @@ behavdir="$subjectroot/$subjid/behavior"
 mpragedir="$subjectroot/$subjid/mprage/func/"
 epidir="$subjectroot/$subjid/func"
 
+analysisdir="$subjectroot/$subjid/analysis"
+
 # make sure the files in the script directory take presidence over anything named the same in the path
 # scriptdir should usually be defined before sourcing this script
 [ -z "$scriptdir" ] && scriptdir=$(cd $(dirname $0);pwd)
