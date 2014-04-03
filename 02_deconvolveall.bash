@@ -39,7 +39,7 @@ stimsdir="stims/"
 
 # stim files are generated from mat output and genStimTimes.m
 # curerntly saved in ../behav/0026/SlotStims/
-outputname=${subjid}_SpnCon$rewards
+outputname=${subjid}_SpnCon_motreg_norest_$rewards
 
 
 # for anticipation (dmBlock for ISI)
@@ -64,21 +64,44 @@ motion1D="$stimsdir/${runs}motion.par" # output from 3dvolreg from MH's preproce
 #TR=1.5
 
 
+## task ends before recording ends
+# -- task ends ~12 seconds after last reciept
+# output is like:
+#   R1/nfswkm_10811_20140321_epi.nii.gz'[0..191]'
+#   R2/nfswkm_epi_R2_10811_20140321.nii.gz'[0..191]'
+#   R3/nfswkm_epi_R3_10811_20140321.nii.gz'[0..188]'
+#   R4/nfswkm_epi_R4_10811_20140321.nii.gz'[0..187]'
+# -- always take the min between 12secs after last result and total volumes
 
-3dDeconvolve                                           \
+inputs=$( 
+	paste <(paste <(ls $epidir/R[$rewards]/n*epi*.nii.gz)  \
+	        <(3dinfo -nv $epidir/R[$rewards]/n*epi*.nii.gz)
+          ) $stimRes |
+	perl -slane '$a=($F[$#F]+12)/1.5;print sprintf("%s[0..%.0f]",$F[0], ($F[1]<$a ? $F[1] : $a) -1)'
+)
+
+# we could stop this by specifing a 4th argument
+if [ -z "$4"] ;then
+ 3dDeconvolve                                           \
       -input  \
-          $epidir/R[$rewards]/n*epi*.nii.gz            \
+          $inputs                                      \
       -polort 3     -tout                              \
       -overwrite                                       \
-      -num_stimts 4                                    \
-      -stim_times_AM1 1 $stimstartdur 'dmBLOCK(1)' \
-      -stim_label 1 slotstart                               \
-      -stim_times_AM1 2 $stimspin 'dmBLOCK(1)' \
-      -stim_label 2 RT                       \
-      -stim_times 3 $stimWIN 'BLOCK(1,1)'    \
-      -stim_label 3 win                                \
-      -stim_times 4 $stimNOWIN 'BLOCK(1,1)' \
-      -stim_label 4 nowin                            \
+      -num_stimts 10                                    \
+      -stim_file 1 $motion1D'[0]' -stim_base 1 -stim_label 1 rx   \
+      -stim_file 2 $motion1D'[1]' -stim_base 2 -stim_label 2 ry   \
+      -stim_file 3 $motion1D'[2]' -stim_base 3 -stim_label 3 rz   \
+      -stim_file 4 $motion1D'[3]' -stim_base 4 -stim_label 4 mx   \
+      -stim_file 5 $motion1D'[4]' -stim_base 5 -stim_label 5 my   \
+      -stim_file 6 $motion1D'[5]' -stim_base 6 -stim_label 6 mz   \
+      -stim_times_AM1 7 $stimstartdur 'dmBLOCK(1)' \
+      -stim_label 7 slotstart                               \
+      -stim_times_AM1 8 $stimspin 'dmBLOCK(1)' \
+      -stim_label 8 RT                       \
+      -stim_times 9 $stimWIN 'BLOCK(1,1)'    \
+      -stim_label 9 win                                \
+      -stim_times 10 $stimNOWIN 'BLOCK(1,1)' \
+      -stim_label 10 nowin                            \
       \
       -num_glt 5                                     \
       -censor $stimsdir/${runs}mcplots_censor.1D            \
@@ -89,12 +112,6 @@ motion1D="$stimsdir/${runs}motion.par" # output from 3dvolreg from MH's preproce
       -gltsym "SYM: RT -nowin -win" -glt_label 5 RT-outcome \
       -bucket $outputname.nii.gz
 
-      #-stim_file 1 $motion1D'[0]' -stim_base 1 -stim_label 1 rx   \
-      #-stim_file 2 $motion1D'[1]' -stim_base 2 -stim_label 2 ry   \
-      #-stim_file 3 $motion1D'[2]' -stim_base 3 -stim_label 3 rz   \
-      #-stim_file 4 $motion1D'[3]' -stim_base 4 -stim_label 4 mx   \
-      #-stim_file 5 $motion1D'[4]' -stim_base 5 -stim_label 5 my   \
-      #-stim_file 6 $motion1D'[5]' -stim_base 6 -stim_label 6 mz   \
       #\
       #-stim_times_AM1 7 $stimstartdur 'dmBLOCK(1)' \
       #-stim_label 7 slotstart                               \
@@ -112,31 +129,35 @@ motion1D="$stimsdir/${runs}motion.par" # output from 3dvolreg from MH's preproce
       #-stim_times 2 stims/${ii}_stimes_*_win.1D 'BLOCK(1.5,1)'     \
       # -stim_times 3 stims/${ii}_stimes_*nowin 'BLOCK(1.5,1)'    \
 
-1d_tool.py -cormat_cutoff 0 -show_cormat_warnings -infile $outputname.xmat.1D | tee $outputname.co-lin.txt
+ 1d_tool.py -cormat_cutoff 0 -show_cormat_warnings -infile $outputname.xmat.1D | tee $outputname.co-lin.txt
 
-#./takepic.bash $outputname.nii.gz
+ #./takepic.bash $outputname.nii.gz
 
-
+ writelog "$0 $@\n#3dNotes $(pwd)/$outputname.nii.gz"
+fi
 
 ##### also do RT only
-#outputname=RTconstrast${rewards}
-#3dDeconvolve                                           \
-#      -input  \
-#          R[$rewards]/n*epi*.nii.gz                    \
-#      -polort 3     -tout                              \
-#      -overwrite                                       \
-#      -num_stimts 3                                    \
-#      \
-#      -stim_times 1 $stimstart 'BLOCK(1,1)' \
-#      -stim_label 1 slotstart                               \
-#      -stim_times 2 $stimRT 'GAM' \
-#      -stim_label 2 RT                       \
-#      -stim_times 3 $stimRes 'BLOCK(1,1)'    \
-#      -stim_label 3 feedback                                \
-#      -censor  ${runs}mcplots_censor.1D                     \
-#      -bucket $outputname.nii.gz \
-#
-#1d_tool.py -cormat_cutoff 0 -show_cormat_warnings -infile $outputname.xmat.1D | tee $outputname.co-lin.txt
-#./takepic.bash $outputname.nii.gz
+# run a very simple regerssion if ask for (4th actual argument, 3rd after subject)
+if [ -n "$3" ]; then
+ outputname=${subjid}_RTCon_norest_$rewards
+ 3dDeconvolve                                           \
+      -input  \
+          $inputs                    \
+      -polort 3     -tout                              \
+      -overwrite                                       \
+      -num_stimts 3                                    \
+      \
+      -stim_times 1 $stimstart 'BLOCK(1,1)' \
+      -stim_label 1 slotstart                               \
+      -stim_times 2 $stimRT 'GAM' \
+      -stim_label 2 RT                       \
+      -stim_times 3 $stimRes 'BLOCK(1,1)'    \
+      -stim_label 3 feedback                                \
+      -censor  stims/${runs}mcplots_censor.1D                     \
+      -bucket $outputname.nii.gz \
 
-writelog "$0 $@\n#3dNotes $(pwd)/$outputname.nii.gz"
+ 1d_tool.py -cormat_cutoff 0 -show_cormat_warnings -infile $outputname.xmat.1D | tee $outputname.co-lin.txt
+ #./takepic.bash $outputname.nii.gz
+ writelog "#3dNotes $(pwd)/$outputname.nii.gz"
+fi
+
